@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { ChatService } from './chat/chat.service';
-import { Chat } from './chat/entities/chat.entity';
+import { ChatDto } from './chat/dto/chat.dto';
 
 @Injectable()
 export class AppService {
@@ -12,7 +12,7 @@ export class AppService {
     private readonly chatService: ChatService,
   ) {}
 
-  createMessage(chat: Chat) {
+  createMessage(chat: ChatDto) {
     this.chatService.createMessage(chat);
   }
 
@@ -32,6 +32,15 @@ export class AppService {
         username: username,
       },
     });
-    this.userRepository.save({ ...user, socketId: socketId });
+    this.userRepository.save({ ...user, socketId: socketId, online: true });
+  }
+
+  async logout(username: string) {
+    const user = await this.userRepository.findOne({
+      where: {
+        username: username,
+      },
+    });
+    this.userRepository.save({ ...user, socketId: null, online: false });
   }
 }

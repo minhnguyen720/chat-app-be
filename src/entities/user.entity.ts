@@ -10,4 +10,7 @@ export class User {
 
   @Column({ nullable: true })
   socketId: string;
+
+  @Column({ default: false })
+  online: boolean;
 }

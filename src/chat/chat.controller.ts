@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ChatService } from './chat.service';
 
 @Controller('chat')
@@ -13,8 +13,8 @@ export class ChatController {
     return this.chatService.getChatByUsername(username, receiver);
   }
 
-  // @Post('/add-message')
-  // createMessage(@Body() chat: Chat) {
-  //   this.chatService.createMessage(chat);
-  // }
+  @Get('/latest-contact/:username')
+  async getLatestContactList(@Param('username') username: string) {
+    return await this.chatService.getLatestContactList(username);
+  }
 }

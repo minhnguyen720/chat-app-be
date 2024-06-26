@@ -1,27 +1,25 @@
-import { User } from 'src/entities/user.entity';
-import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity()
 export class Chat {
   @PrimaryColumn()
   id: string;
 
-  @Column()
-  content: string;
-
-  @Column()
-  createdDate: Date;
-
-  @Column()
-  status: string;
+  @Column({
+    type: 'jsonb',
+    nullable: true,
+    default: () => "'[]'",
+    array: false,
+  })
+  conversation: Array<{
+    createdDate: Date;
+    status: string;
+    content: string;
+  }>;
 
   @Column()
   owner: string;
 
   @Column()
   receiver: string;
-
-  @OneToOne(() => User)
-  @JoinColumn()
-  createdUser: string;
 }

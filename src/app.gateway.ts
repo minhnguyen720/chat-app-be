@@ -7,7 +7,7 @@ import {
 } from '@nestjs/websockets';
 import { AppService } from './app.service';
 import { Server, Socket } from 'socket.io';
-import { Chat } from './chat/entities/chat.entity';
+import { ChatDto } from './chat/dto/chat.dto';
 
 @WebSocketGateway({
   cors: {
@@ -23,17 +23,31 @@ export class AppGateway {
   @SubscribeMessage('message')
   async handleMessage(
     @ConnectedSocket() client: Socket,
-    @MessageBody() payload: Chat,
+    @MessageBody() payload: ChatDto,
   ): Promise<void> {
-    const createMessagePromise = this.appService.createMessage(payload);
-    const getReceiverByUsernamePromise = this.appService.getReceiverByUsername(
-      payload.receiver,
-    );
-    const [receiver] = await Promise.all([
-      getReceiverByUsernamePromise,
-      createMessagePromise,
-    ]);
-    this.server.sockets.sockets.get(receiver.socketId).emit('message', payload);
+    try {
+      const createMessagePromise = this.appService.createMessage(payload);
+      const getReceiverByUsernamePromise =
+        this.appService.getReceiverByUsername(payload.receiver);
+      const [receiver] = await Promise.all([
+        getReceiverByUsernamePromise,
+        createMessagePromise,
+      ]);
+      if (
+        receiver !== null &&
+        receiver.socketId !== undefined &&
+        receiver.socketId !== null &&
+        receiver.online
+      ) {
+        const receiverSocketInstance = this.server.sockets.sockets.get(
+          receiver.socketId,
+        );
+        if (receiverSocketInstance)
+          receiverSocketInstance.emit('message', payload);
+      }
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   handleDisconnect(client: Socket) {
