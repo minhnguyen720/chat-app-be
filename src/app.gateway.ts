@@ -29,7 +29,7 @@ export class AppGateway {
       const createMessagePromise = this.appService.createMessage(payload);
       const getReceiverByUsernamePromise =
         this.appService.getReceiverByUsername(payload.receiver);
-      const [receiver] = await Promise.all([
+      const [receiver, conversation] = await Promise.all([
         getReceiverByUsernamePromise,
         createMessagePromise,
       ]);
@@ -43,7 +43,7 @@ export class AppGateway {
           receiver.socketId,
         );
         if (receiverSocketInstance)
-          receiverSocketInstance.emit('message', payload);
+          receiverSocketInstance.emit('message', conversation);
       }
     } catch (error) {
       console.error(error);

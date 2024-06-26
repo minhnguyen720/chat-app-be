@@ -12,8 +12,9 @@ export class AppService {
     private readonly chatService: ChatService,
   ) {}
 
-  createMessage(chat: ChatDto) {
-    this.chatService.createMessage(chat);
+  async createMessage(chat: ChatDto) {
+    await this.chatService.createMessage(chat);
+    return await this.chatService.getChatByUsername(chat.owner, chat.receiver);
   }
 
   async getReceiverByUsername(username: string) {
